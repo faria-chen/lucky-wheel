@@ -415,12 +415,20 @@ canvas#wheelCanvas {
   100% { opacity: 1; transform: scale(1.2); }
 }
 
-/* Center spin button on wheel */
-.wheel-center-btn {
+/* Center spin button on wheel — wrapper uses flexbox centering */
+.wheel-center-wrap {
   position: absolute;
-  top: 50%; left: 50%;
-  -webkit-transform: translate(-50%, -50%);
-  transform: translate(-50%, -50%);
+  top: 0; left: 0; right: 0; bottom: 0;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-align-items: center;
+  align-items: center;
+  -webkit-justify-content: center;
+  justify-content: center;
+  z-index: 20;
+  pointer-events: none;
+}
+.wheel-center-btn {
   width: 72px; height: 72px;
   border-radius: 50%;
   border: none;
@@ -429,15 +437,23 @@ canvas#wheelCanvas {
   font-family: var(--cute);
   font-size: 0.85rem;
   cursor: pointer;
-  z-index: 20;
   box-shadow: 0 4px 20px rgba(255,82,82,0.5), inset 0 2px 6px rgba(255,255,255,0.3);
-  -webkit-animation: breathe 2.5s ease-in-out infinite;
-  animation: breathe 2.5s ease-in-out infinite;
+  -webkit-animation: btnBreathe 2.5s ease-in-out infinite;
+  animation: btnBreathe 2.5s ease-in-out infinite;
   -webkit-transition: opacity 0.3s;
   transition: opacity 0.3s;
   letter-spacing: 1px;
   -webkit-appearance: none;
   appearance: none;
+  pointer-events: auto;
+}
+@-webkit-keyframes btnBreathe {
+  0%, 100% { -webkit-transform: scale(1); transform: scale(1); box-shadow: 0 4px 20px rgba(255,82,82,0.5); }
+  50% { -webkit-transform: scale(1.12); transform: scale(1.12); box-shadow: 0 6px 30px rgba(255,82,82,0.7); }
+}
+@keyframes btnBreathe {
+  0%, 100% { transform: scale(1); box-shadow: 0 4px 20px rgba(255,82,82,0.5); }
+  50% { transform: scale(1.12); box-shadow: 0 6px 30px rgba(255,82,82,0.7); }
 }
 .wheel-center-btn:disabled {
   -webkit-animation: none;
@@ -447,8 +463,8 @@ canvas#wheelCanvas {
 }
 .wheel-center-btn:not(:disabled):hover { -webkit-filter: brightness(1.1); filter: brightness(1.1); }
 .wheel-center-btn:not(:disabled):active {
-  -webkit-transform: translate(-50%,-50%) scale(0.92);
-  transform: translate(-50%,-50%) scale(0.92);
+  -webkit-transform: scale(0.92);
+  transform: scale(0.92);
 }
 
 /* ====== Page 4: Result ====== */
@@ -629,7 +645,9 @@ canvas#wheelCanvas {
       </div>
       <div class="bulb-ring" id="bulbRing"></div>
       <canvas id="wheelCanvas" width="380" height="380"></canvas>
-      <button class="wheel-center-btn" id="spinBtn" onclick="startSpin()">开始<br>抽奖</button>
+      <div class="wheel-center-wrap">
+        <button class="wheel-center-btn" id="spinBtn" onclick="startSpin()">开始<br>抽奖</button>
+      </div>
     </div>
   </div>
 </div>
