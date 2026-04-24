@@ -814,17 +814,22 @@ function drawWheel(rotation) {
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillStyle = '#fff';
-    ctx.font = 'bold 19px "ZCOOL KuaiLe", "Noto Sans SC", sans-serif';
-    ctx.shadowColor = 'rgba(0,0,0,0.4)';
-    ctx.shadowBlur = 4;
+    ctx.font = 'bold 22px "ZCOOL KuaiLe", "Noto Sans SC", sans-serif';
+    ctx.shadowColor = 'rgba(0,0,0,0.6)';
+    ctx.shadowBlur = 6;
     ctx.shadowOffsetX = 1;
     ctx.shadowOffsetY = 1;
 
     var awardText = AWARDS[i];
     var prizeText = c.prizes ? c.prizes[i] : DEFAULTS.prizes[i];
-    ctx.fillText(awardText, RADIUS * 0.55, -10);
-    ctx.font = 'bold 16px "ZCOOL KuaiLe", "Noto Sans SC", sans-serif';
-    ctx.fillText(prizeText, RADIUS * 0.55, 12);
+    // Draw text with stroke for better visibility
+    ctx.lineWidth = 3;
+    ctx.strokeStyle = 'rgba(0,0,0,0.35)';
+    ctx.strokeText(awardText, RADIUS * 0.55, -12);
+    ctx.fillText(awardText, RADIUS * 0.55, -12);
+    ctx.font = 'bold 19px "ZCOOL KuaiLe", "Noto Sans SC", sans-serif';
+    ctx.strokeText(prizeText, RADIUS * 0.55, 14);
+    ctx.fillText(prizeText, RADIUS * 0.55, 14);
     ctx.restore();
   }
 
