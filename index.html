@@ -26,8 +26,14 @@ body {
   font-family: var(--cute);
   background: var(--bg);
   min-height: 100vh;
+  min-height: -webkit-fill-available;
   overflow-x: hidden;
   color: #333;
+  -webkit-text-size-adjust: 100%;
+}
+
+html {
+  height: -webkit-fill-available;
 }
 
 /* ====== Pages ====== */
@@ -35,10 +41,22 @@ body {
   display: none;
   min-height: 100vh;
   padding: 20px;
+  -webkit-animation: pageIn 0.5s ease;
   animation: pageIn 0.5s ease;
 }
-.page.active { display: flex; flex-direction: column; align-items: center; }
+.page.active {
+  display: -webkit-flex;
+  display: flex;
+  -webkit-flex-direction: column;
+  flex-direction: column;
+  -webkit-align-items: center;
+  align-items: center;
+}
 
+@-webkit-keyframes pageIn {
+  from { opacity: 0; -webkit-transform: translateY(30px); transform: translateY(30px); }
+  to { opacity: 1; -webkit-transform: translateY(0); transform: translateY(0); }
+}
 @keyframes pageIn {
   from { opacity: 0; transform: translateY(30px); }
   to { opacity: 1; transform: translateY(0); }
@@ -46,13 +64,20 @@ body {
 
 /* ====== Floating bubbles bg ====== */
 .bubbles {
-  position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden;
+  position: fixed;
+  top: 0; right: 0; bottom: 0; left: 0;
+  pointer-events: none; z-index: 0; overflow: hidden;
 }
 .bubbles span {
   position: absolute; bottom: -60px;
   border-radius: 50%;
   opacity: 0.12;
+  -webkit-animation: rise linear infinite;
   animation: rise linear infinite;
+}
+@-webkit-keyframes rise {
+  0% { -webkit-transform: translateY(0) scale(1); transform: translateY(0) scale(1); opacity: 0.12; }
+  100% { -webkit-transform: translateY(-110vh) scale(0.3); transform: translateY(-110vh) scale(0.3); opacity: 0; }
 }
 @keyframes rise {
   0% { transform: translateY(0) scale(1); opacity: 0.12; }
@@ -61,10 +86,11 @@ body {
 
 /* ====== Page 1: Config ====== */
 #page1 {
+  -webkit-justify-content: center;
   justify-content: center;
-  gap: 20px;
   background: linear-gradient(160deg, #fff0f6, #f3f0ff, #e8f8ff);
 }
+#page1 > * + * { margin-top: 20px; }
 
 .config-card {
   background: var(--card);
@@ -82,6 +108,7 @@ body {
   font-size: 1.8rem;
   background: linear-gradient(135deg, var(--pink), var(--purple));
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
   margin-bottom: 24px;
 }
@@ -102,8 +129,11 @@ body {
   font-family: var(--cute);
   font-size: 1rem;
   outline: none;
+  -webkit-transition: border-color 0.3s, box-shadow 0.3s;
   transition: border-color 0.3s, box-shadow 0.3s;
   background: #fdfaff;
+  -webkit-appearance: none;
+  appearance: none;
 }
 .config-card input:focus {
   border-color: var(--purple);
@@ -111,9 +141,10 @@ body {
 }
 
 .prize-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-flex-wrap: wrap;
+  flex-wrap: wrap;
   margin-top: 8px;
 }
 .prize-grid .prize-item {
@@ -121,7 +152,10 @@ body {
   border-radius: 16px;
   padding: 12px;
   text-align: center;
+  width: calc(50% - 6px);
+  margin-bottom: 12px;
 }
+.prize-grid .prize-item:nth-child(odd) { margin-right: 12px; }
 .prize-grid .prize-item .award-name {
   font-size: 0.85rem;
   color: var(--pink);
@@ -135,7 +169,8 @@ body {
   background: #fff;
 }
 .prize-grid .prize-item:last-child {
-  grid-column: 1 / -1;
+  width: 100%;
+  margin-right: 0;
 }
 
 .btn-cute {
@@ -147,27 +182,33 @@ body {
   font-family: var(--cute);
   font-size: 1.15rem;
   cursor: pointer;
+  -webkit-transition: all 0.3s;
   transition: all 0.3s;
   margin-top: 24px;
   color: #fff;
   background: linear-gradient(135deg, var(--pink), var(--purple));
   box-shadow: 0 6px 20px rgba(196,77,255,0.3);
+  -webkit-appearance: none;
+  appearance: none;
 }
 .btn-cute:hover {
+  -webkit-transform: translateY(-2px);
   transform: translateY(-2px);
   box-shadow: 0 8px 28px rgba(196,77,255,0.4);
 }
 .btn-cute:active {
+  -webkit-transform: translateY(0) scale(0.98);
   transform: translateY(0) scale(0.98);
 }
 
 /* ====== Page 2: Home ====== */
 #page2 {
+  -webkit-justify-content: center;
   justify-content: center;
-  gap: 28px;
   background: linear-gradient(160deg, #fff0f6, #f0f8ff, #fff8f0);
   position: relative;
 }
+#page2 > * + * { margin-top: 28px; }
 
 .edit-btn {
   position: fixed;
@@ -181,35 +222,52 @@ body {
   font-size: 0.85rem;
   color: var(--purple);
   cursor: pointer;
+  -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
+  -webkit-transition: all 0.3s;
   transition: all 0.3s;
+  -webkit-appearance: none;
+  appearance: none;
 }
 .edit-btn:hover {
   background: #fff;
   border-color: var(--purple);
+  -webkit-transform: scale(1.05);
   transform: scale(1.05);
 }
 
 .home-title {
-  font-size: clamp(2rem, 7vw, 3.2rem);
+  font-size: 2.4rem;
   text-align: center;
   background: linear-gradient(135deg, var(--pink), var(--purple), var(--blue));
   background-size: 200% auto;
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
+  -webkit-animation: titleShimmer 4s ease infinite;
   animation: titleShimmer 4s ease infinite;
   position: relative;
   z-index: 1;
+}
+@-webkit-keyframes titleShimmer {
+  0%,100% { background-position: 0% center; }
+  50% { background-position: 200% center; }
 }
 @keyframes titleShimmer {
   0%,100% { background-position: 0% center; }
   50% { background-position: 200% center; }
 }
 
+@media (max-width: 480px) {
+  .home-title { font-size: 2rem; }
+}
+
 .home-prizes {
+  display: -webkit-flex;
   display: flex;
+  -webkit-flex-wrap: wrap;
   flex-wrap: wrap;
-  gap: 12px;
+  -webkit-justify-content: center;
   justify-content: center;
   max-width: 460px;
   position: relative;
@@ -223,7 +281,9 @@ body {
   text-align: center;
   min-width: 80px;
   border: 2px solid transparent;
+  -webkit-transition: all 0.3s;
   transition: all 0.3s;
+  margin: 6px;
 }
 .home-prize-tag .award {
   font-size: 0.8rem;
@@ -248,12 +308,26 @@ body {
   z-index: 1;
   background: linear-gradient(135deg, var(--orange), var(--pink));
   box-shadow: 0 6px 24px rgba(255,106,157,0.4);
+  -webkit-animation: breathe 2.5s ease-in-out infinite;
   animation: breathe 2.5s ease-in-out infinite;
+  -webkit-transition: -webkit-transform 0.2s;
   transition: transform 0.2s;
+  -webkit-appearance: none;
+  appearance: none;
 }
-.breathing-btn:hover { transform: scale(1.06); }
-.breathing-btn:active { transform: scale(0.97); }
+.breathing-btn:hover {
+  -webkit-transform: scale(1.06);
+  transform: scale(1.06);
+}
+.breathing-btn:active {
+  -webkit-transform: scale(0.97);
+  transform: scale(0.97);
+}
 
+@-webkit-keyframes breathe {
+  0%, 100% { -webkit-transform: scale(1); transform: scale(1); box-shadow: 0 6px 24px rgba(255,106,157,0.4); }
+  50% { -webkit-transform: scale(1.08); transform: scale(1.08); box-shadow: 0 10px 40px rgba(255,106,157,0.6); }
+}
 @keyframes breathe {
   0%, 100% { transform: scale(1); box-shadow: 0 6px 24px rgba(255,106,157,0.4); }
   50% { transform: scale(1.08); box-shadow: 0 10px 40px rgba(255,106,157,0.6); }
@@ -261,12 +335,13 @@ body {
 
 /* ====== Page 3: Wheel ====== */
 #page3 {
+  -webkit-justify-content: center;
   justify-content: center;
-  gap: 10px;
   background: linear-gradient(160deg, #1a1030, #2d1b69, #1a1030);
   min-height: 100vh;
   position: relative;
 }
+#page3 > * + * { margin-top: 10px; }
 
 .wheel-wrap {
   position: relative;
@@ -281,14 +356,17 @@ body {
 .wheel-outer::before {
   content: '';
   position: absolute;
-  inset: -16px;
+  top: -16px; right: -16px; bottom: -16px; left: -16px;
   border-radius: 50%;
   background: conic-gradient(from 0deg, var(--yellow), var(--pink), var(--purple), var(--blue), var(--yellow));
+  -webkit-animation: spinGlow 6s linear infinite;
   animation: spinGlow 6s linear infinite;
+  -webkit-filter: blur(12px);
   filter: blur(12px);
   opacity: 0.5;
   z-index: -1;
 }
+@-webkit-keyframes spinGlow { to { -webkit-transform: rotate(360deg); transform: rotate(360deg); } }
 @keyframes spinGlow { to { transform: rotate(360deg); } }
 
 canvas#wheelCanvas {
@@ -305,8 +383,10 @@ canvas#wheelCanvas {
   position: absolute;
   top: -18px;
   left: 50%;
+  -webkit-transform: translateX(-50%);
   transform: translateX(-50%);
   z-index: 20;
+  -webkit-filter: drop-shadow(0 3px 8px rgba(255,50,80,0.6));
   filter: drop-shadow(0 3px 8px rgba(255,50,80,0.6));
 }
 .wheel-pointer svg { display: block; }
@@ -314,7 +394,7 @@ canvas#wheelCanvas {
 /* Bulbs */
 .bulb-ring {
   position: absolute;
-  inset: -12px;
+  top: -12px; right: -12px; bottom: -12px; left: -12px;
   border-radius: 50%;
   pointer-events: none;
   z-index: 5;
@@ -323,7 +403,12 @@ canvas#wheelCanvas {
   position: absolute;
   width: 10px; height: 10px;
   border-radius: 50%;
+  -webkit-animation: bulbPulse 1.2s ease-in-out infinite alternate;
   animation: bulbPulse 1.2s ease-in-out infinite alternate;
+}
+@-webkit-keyframes bulbPulse {
+  0% { opacity: 0.25; -webkit-transform: scale(0.7); transform: scale(0.7); }
+  100% { opacity: 1; -webkit-transform: scale(1.2); transform: scale(1.2); }
 }
 @keyframes bulbPulse {
   0% { opacity: 0.25; transform: scale(0.7); }
@@ -334,6 +419,7 @@ canvas#wheelCanvas {
 .wheel-center-btn {
   position: absolute;
   top: 50%; left: 50%;
+  -webkit-transform: translate(-50%, -50%);
   transform: translate(-50%, -50%);
   width: 72px; height: 72px;
   border-radius: 50%;
@@ -345,29 +431,38 @@ canvas#wheelCanvas {
   cursor: pointer;
   z-index: 20;
   box-shadow: 0 4px 20px rgba(255,82,82,0.5), inset 0 2px 6px rgba(255,255,255,0.3);
+  -webkit-animation: breathe 2.5s ease-in-out infinite;
   animation: breathe 2.5s ease-in-out infinite;
+  -webkit-transition: opacity 0.3s;
   transition: opacity 0.3s;
   letter-spacing: 1px;
+  -webkit-appearance: none;
+  appearance: none;
 }
 .wheel-center-btn:disabled {
+  -webkit-animation: none;
   animation: none;
   opacity: 0.4;
   cursor: default;
 }
-.wheel-center-btn:not(:disabled):hover { filter: brightness(1.1); }
-.wheel-center-btn:not(:disabled):active { transform: translate(-50%,-50%) scale(0.92); }
+.wheel-center-btn:not(:disabled):hover { -webkit-filter: brightness(1.1); filter: brightness(1.1); }
+.wheel-center-btn:not(:disabled):active {
+  -webkit-transform: translate(-50%,-50%) scale(0.92);
+  transform: translate(-50%,-50%) scale(0.92);
+}
 
 /* ====== Page 4: Result ====== */
 #page4 {
+  -webkit-justify-content: center;
   justify-content: center;
-  gap: 24px;
   background: linear-gradient(160deg, #fff0f6, #f5f0ff);
   position: relative;
 }
+#page4 > * + * { margin-top: 24px; }
 
 .fireworks-canvas {
   position: fixed;
-  inset: 0;
+  top: 0; right: 0; bottom: 0; left: 0;
   z-index: 100;
   pointer-events: none;
 }
@@ -379,8 +474,13 @@ canvas#wheelCanvas {
   box-shadow: var(--shadow);
   text-align: center;
   z-index: 101;
+  -webkit-animation: resultPop 0.6s cubic-bezier(0.175,0.885,0.32,1.275);
   animation: resultPop 0.6s cubic-bezier(0.175,0.885,0.32,1.275);
   max-width: 90vw;
+}
+@-webkit-keyframes resultPop {
+  0% { -webkit-transform: scale(0.3) rotate(-5deg); transform: scale(0.3) rotate(-5deg); opacity: 0; }
+  100% { -webkit-transform: scale(1) rotate(0deg); transform: scale(1) rotate(0deg); opacity: 1; }
 }
 @keyframes resultPop {
   0% { transform: scale(0.3) rotate(-5deg); opacity: 0; }
@@ -403,6 +503,7 @@ canvas#wheelCanvas {
   font-weight: 900;
   background: linear-gradient(135deg, var(--orange), var(--pink), var(--purple));
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
   line-height: 1.6;
 }
@@ -418,22 +519,39 @@ canvas#wheelCanvas {
   z-index: 101;
   background: linear-gradient(135deg, var(--purple), var(--blue));
   box-shadow: 0 6px 24px rgba(77,201,246,0.4);
+  -webkit-animation: breathe 2.5s ease-in-out infinite;
   animation: breathe 2.5s ease-in-out infinite;
+  -webkit-transition: -webkit-transform 0.2s;
   transition: transform 0.2s;
+  -webkit-appearance: none;
+  appearance: none;
 }
-.back-btn:hover { transform: scale(1.06); }
-.back-btn:active { transform: scale(0.97); }
+.back-btn:hover {
+  -webkit-transform: scale(1.06);
+  transform: scale(1.06);
+}
+.back-btn:active {
+  -webkit-transform: scale(0.97);
+  transform: scale(0.97);
+}
 
 /* Stars on page3 */
 .stars {
-  position: fixed; inset: 0; pointer-events: none; z-index: 0;
+  position: fixed;
+  top: 0; right: 0; bottom: 0; left: 0;
+  pointer-events: none; z-index: 0;
 }
 .stars span {
   position: absolute;
   width: 2px; height: 2px;
   background: #fff;
   border-radius: 50%;
+  -webkit-animation: twinkle ease-in-out infinite alternate;
   animation: twinkle ease-in-out infinite alternate;
+}
+@-webkit-keyframes twinkle {
+  0% { opacity: 0.1; -webkit-transform: scale(0.5); transform: scale(0.5); }
+  100% { opacity: 0.8; -webkit-transform: scale(1.3); transform: scale(1.3); }
 }
 @keyframes twinkle {
   0% { opacity: 0.1; transform: scale(0.5); }
@@ -443,8 +561,8 @@ canvas#wheelCanvas {
 /* Mobile */
 @media (max-width: 480px) {
   .config-card { padding: 28px 20px; }
-  .prize-grid { grid-template-columns: 1fr; }
-  .prize-grid .prize-item:last-child { grid-column: auto; }
+  .prize-grid .prize-item { width: 100%; margin-right: 0; }
+  .prize-grid .prize-item:nth-child(odd) { margin-right: 0; }
 }
 </style>
 </head>
@@ -529,48 +647,53 @@ canvas#wheelCanvas {
 
 <script>
 // ====== State ======
-const DEFAULTS = {
-  title: '幸运大转盘',
-  prizes: ['神秘大奖', '蓝牙耳机', '定制马克杯', '精美钥匙扣', '谢谢参与']
+var DEFAULTS = {
+  title: '\u5e78\u8fd0\u5927\u8f6b\u76d8',
+  prizes: ['\u795e\u79d8\u5927\u5956', '\u84dd\u7259\u8033\u673a', '\u5b9a\u5236\u9a6c\u514b\u676f', '\u7cbe\u7f8e\u94a5\u5319\u6263', '\u8c22\u8c22\u53c2\u4e0e']
 };
 
-const AWARDS = ['特等奖','一等奖','二等奖','三等奖','再接再厉'];
-const AWARDS_ICONS = ['🏆','🥇','🥈','🥉','💪'];
-const COLORS = ['#ff6b6b','#feca57','#48dbfb','#ff9ff3','#54a0ff'];
+var AWARDS = ['\u7279\u7b49\u5956','\u4e00\u7b49\u5956','\u4e8c\u7b49\u5956','\u4e09\u7b49\u5956','\u518d\u63a5\u518d\u5389'];
+var AWARDS_ICONS = ['\ud83c\udfc6','\ud83e\udd47','\ud83e\udd48','\ud83e\udd49','\ud83d\udcaa'];
+var COLORS = ['#ff6b6b','#feca57','#48dbfb','#ff9ff3','#54a0ff'];
 
-let config = loadConfig();
-let currentAngle = 0;
-let spinning = false;
-let lastResult = null;
+var config = loadConfig();
+var currentAngle = 0;
+var spinning = false;
+var lastResult = null;
 
 // ====== Config persistence ======
 function loadConfig() {
   try {
-    const saved = localStorage.getItem('luckyWheelConfig');
+    var saved = localStorage.getItem('luckyWheelConfig');
     if (saved) return JSON.parse(saved);
   } catch(e) {}
   return null;
 }
 
 function saveConfig() {
-  const title = document.getElementById('cfgTitle').value.trim() || DEFAULTS.title;
-  const prizes = [];
-  for (let i = 0; i < 5; i++) {
-    const v = document.getElementById('cfg' + i).value.trim();
+  var title = document.getElementById('cfgTitle').value.trim() || DEFAULTS.title;
+  var prizes = [];
+  for (var i = 0; i < 5; i++) {
+    var v = document.getElementById('cfg' + i).value.trim();
     prizes.push(v || DEFAULTS.prizes[i]);
   }
-  config = { title, prizes };
+  config = { title: title, prizes: prizes };
   localStorage.setItem('luckyWheelConfig', JSON.stringify(config));
   goPage(2);
 }
 
 // ====== Page navigation ======
 function goPage(n) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  const page = document.getElementById('page' + n);
+  var pages = document.querySelectorAll('.page');
+  for (var i = 0; i < pages.length; i++) {
+    pages[i].classList.remove('active');
+  }
+  var page = document.getElementById('page' + n);
   page.classList.add('active');
+  page.style.webkitAnimation = 'none';
   page.style.animation = 'none';
-  page.offsetHeight; // reflow
+  page.offsetHeight;
+  page.style.webkitAnimation = '';
   page.style.animation = '';
 
   if (n === 1) fillConfig();
@@ -581,36 +704,35 @@ function goPage(n) {
 
 // ====== Page 1: Fill config ======
 function fillConfig() {
-  const c = config || { ...DEFAULTS };
+  var c = config || cloneObj(DEFAULTS);
   document.getElementById('cfgTitle').value = c.title || DEFAULTS.title;
-  for (let i = 0; i < 5; i++) {
+  for (var i = 0; i < 5; i++) {
     document.getElementById('cfg' + i).value = (c.prizes && c.prizes[i]) || DEFAULTS.prizes[i];
   }
 }
 
 // ====== Page 2: Render home ======
 function renderHome() {
-  const c = config || { ...DEFAULTS };
+  var c = config || cloneObj(DEFAULTS);
   document.getElementById('homeTitle').textContent = c.title || DEFAULTS.title;
 
-  const container = document.getElementById('homePrizes');
+  var container = document.getElementById('homePrizes');
   container.innerHTML = '';
-  for (let i = 0; i < 5; i++) {
-    const tag = document.createElement('div');
+  for (var i = 0; i < 5; i++) {
+    var tag = document.createElement('div');
     tag.className = 'home-prize-tag';
-    tag.innerHTML = `
-      <div class="award">${AWARDS_ICONS[i]} ${AWARDS[i]}</div>
-      <div class="prize">${(c.prizes && c.prizes[i]) || DEFAULTS.prizes[i]}</div>
-    `;
+    tag.innerHTML =
+      '<div class="award">' + AWARDS_ICONS[i] + ' ' + AWARDS[i] + '</div>' +
+      '<div class="prize">' + ((c.prizes && c.prizes[i]) || DEFAULTS.prizes[i]) + '</div>';
     container.appendChild(tag);
   }
 }
 
 // ====== Page 3: Wheel ======
-const canvas = document.getElementById('wheelCanvas');
-const ctx = canvas.getContext('2d');
-const CX = 190, CY = 190, RADIUS = 180;
-const SLICE = (2 * Math.PI) / 5;
+var canvas = document.getElementById('wheelCanvas');
+var ctx = canvas.getContext('2d');
+var CX = 190, CY = 190, RADIUS = 180;
+var SLICE = (2 * Math.PI) / 5;
 
 function initWheel() {
   spinning = false;
@@ -621,39 +743,36 @@ function initWheel() {
 }
 
 function drawWheel(rotation) {
-  const c = config || { ...DEFAULTS };
+  var c = config || cloneObj(DEFAULTS);
   ctx.clearRect(0, 0, 380, 380);
 
-  for (let i = 0; i < 5; i++) {
-    const start = rotation + i * SLICE;
-    const end = start + SLICE;
+  for (var i = 0; i < 5; i++) {
+    var start = rotation + i * SLICE;
+    var end = start + SLICE;
 
-    // Slice fill
     ctx.beginPath();
     ctx.moveTo(CX, CY);
     ctx.arc(CX, CY, RADIUS, start, end);
     ctx.closePath();
 
-    const grad = ctx.createRadialGradient(CX, CY, 10, CX, CY, RADIUS);
+    var grad = ctx.createRadialGradient(CX, CY, 10, CX, CY, RADIUS);
     grad.addColorStop(0, lighten(COLORS[i], 50));
     grad.addColorStop(0.6, COLORS[i]);
     grad.addColorStop(1, darken(COLORS[i], 20));
     ctx.fillStyle = grad;
     ctx.fill();
 
-    // Slice border
     ctx.strokeStyle = 'rgba(0,0,0,0.08)';
     ctx.lineWidth = 2;
     ctx.stroke();
 
-    // Inner shadow for 3D
     ctx.save();
     ctx.beginPath();
     ctx.moveTo(CX, CY);
     ctx.arc(CX, CY, RADIUS, start, end);
     ctx.closePath();
     ctx.clip();
-    const innerShadow = ctx.createRadialGradient(CX, CY, RADIUS * 0.3, CX, CY, RADIUS);
+    var innerShadow = ctx.createRadialGradient(CX, CY, RADIUS * 0.3, CX, CY, RADIUS);
     innerShadow.addColorStop(0, 'rgba(255,255,255,0.15)');
     innerShadow.addColorStop(0.7, 'rgba(0,0,0,0)');
     innerShadow.addColorStop(1, 'rgba(0,0,0,0.12)');
@@ -661,7 +780,6 @@ function drawWheel(rotation) {
     ctx.fillRect(0, 0, 380, 380);
     ctx.restore();
 
-    // Text
     ctx.save();
     ctx.translate(CX, CY);
     ctx.rotate(start + SLICE / 2);
@@ -674,18 +792,17 @@ function drawWheel(rotation) {
     ctx.shadowOffsetX = 1;
     ctx.shadowOffsetY = 1;
 
-    const awardText = AWARDS[i];
-    const prizeText = c.prizes ? c.prizes[i] : DEFAULTS.prizes[i];
+    var awardText = AWARDS[i];
+    var prizeText = c.prizes ? c.prizes[i] : DEFAULTS.prizes[i];
     ctx.fillText(awardText, RADIUS * 0.55, -10);
     ctx.font = 'bold 13px "ZCOOL KuaiLe", "Noto Sans SC", sans-serif';
     ctx.fillText(prizeText, RADIUS * 0.55, 12);
     ctx.restore();
   }
 
-  // Center circle
   ctx.beginPath();
   ctx.arc(CX, CY, 38, 0, Math.PI * 2);
-  const cg = ctx.createRadialGradient(CX, CY, 0, CX, CY, 38);
+  var cg = ctx.createRadialGradient(CX, CY, 0, CX, CY, 38);
   cg.addColorStop(0, '#3d2b7a');
   cg.addColorStop(1, '#1a1030');
   ctx.fillStyle = cg;
@@ -696,104 +813,90 @@ function drawWheel(rotation) {
 }
 
 function createBulbs() {
-  const ring = document.getElementById('bulbRing');
+  var ring = document.getElementById('bulbRing');
   ring.innerHTML = '';
-  const count = 20;
-  for (let i = 0; i < count; i++) {
-    const angle = (i / count) * Math.PI * 2;
-    const bulb = document.createElement('div');
+  var count = 20;
+  for (var i = 0; i < count; i++) {
+    var angle = (i / count) * Math.PI * 2;
+    var bulb = document.createElement('div');
     bulb.className = 'bulb';
-    const r = 200;
-    bulb.style.cssText = `
-      background: ${i % 2 === 0 ? '#ffd200' : '#fff'};
-      box-shadow: 0 0 6px ${i % 2 === 0 ? '#ffd200' : 'rgba(255,255,255,0.8)'};
-      top: ${190 + Math.sin(angle) * r - 5}px;
-      left: ${190 + Math.cos(angle) * r - 5}px;
-      animation-delay: ${(i % 2) * 0.6}s;
-    `;
+    var r = 200;
+    var bg = i % 2 === 0 ? '#ffd200' : '#fff';
+    var glow = i % 2 === 0 ? '#ffd200' : 'rgba(255,255,255,0.8)';
+    bulb.style.cssText =
+      'background:' + bg + ';' +
+      'box-shadow:0 0 6px ' + glow + ';' +
+      'top:' + (190 + Math.sin(angle) * r - 5) + 'px;' +
+      'left:' + (190 + Math.cos(angle) * r - 5) + 'px;' +
+      'animation-delay:' + ((i % 2) * 0.6) + 's;' +
+      '-webkit-animation-delay:' + ((i % 2) * 0.6) + 's;';
     ring.appendChild(bulb);
   }
 }
 
 function createStars() {
-  const container = document.getElementById('stars');
+  var container = document.getElementById('stars');
   if (container.children.length > 0) return;
-  for (let i = 0; i < 60; i++) {
-    const s = document.createElement('span');
-    s.style.cssText = `
-      left: ${Math.random()*100}%;
-      top: ${Math.random()*100}%;
-      animation-duration: ${1+Math.random()*3}s;
-      animation-delay: ${Math.random()*2}s;
-    `;
+  for (var i = 0; i < 60; i++) {
+    var s = document.createElement('span');
+    s.style.cssText =
+      'left:' + (Math.random()*100) + '%;' +
+      'top:' + (Math.random()*100) + '%;' +
+      'animation-duration:' + (1+Math.random()*3) + 's;' +
+      '-webkit-animation-duration:' + (1+Math.random()*3) + 's;' +
+      'animation-delay:' + (Math.random()*2) + 's;' +
+      '-webkit-animation-delay:' + (Math.random()*2) + 's;';
     container.appendChild(s);
   }
 }
 
-// ====== Spin logic — realistic physics ======
+// ====== Spin logic ======
 function startSpin() {
   if (spinning) return;
   spinning = true;
   document.getElementById('spinBtn').disabled = true;
 
-  // Pick result with equal probability
-  const winIndex = Math.floor(Math.random() * 5);
+  var winIndex = Math.floor(Math.random() * 5);
   lastResult = winIndex;
 
-  const sliceAngle = SLICE;
-  // Pointer at top = -π/2 (270°). We need winning slice center to align there.
-  const sliceCenter = winIndex * sliceAngle + sliceAngle / 2;
-  const targetBase = -Math.PI / 2 - sliceCenter;
+  var sliceAngle = SLICE;
+  var sliceCenter = winIndex * sliceAngle + sliceAngle / 2;
+  var targetBase = -Math.PI / 2 - sliceCenter;
 
-  // Add random offset within slice (±30% of slice) for natural feel
-  const wobble = (Math.random() - 0.5) * sliceAngle * 0.3;
-  const fullSpins = 6 + Math.floor(Math.random() * 3);
-  const targetAngle = targetBase + wobble + fullSpins * Math.PI * 2;
+  var wobble = (Math.random() - 0.5) * sliceAngle * 0.3;
+  var fullSpins = 6 + Math.floor(Math.random() * 3);
+  var targetAngle = targetBase + wobble + fullSpins * Math.PI * 2;
 
-  // Normalize current angle
-  const startAngle = currentAngle;
-  const delta = targetAngle - (startAngle % (Math.PI * 2));
+  var startAngle = currentAngle;
+  var delta = targetAngle - (startAngle % (Math.PI * 2));
 
-  const totalDist = delta + fullSpins * Math.PI * 2;
-  const duration = 5000 + Math.random() * 1500;
-  const startTime = performance.now();
-
-  // Track rotation speed for sound-like visual feedback
-  let lastAngle = startAngle;
+  var totalDist = delta + fullSpins * Math.PI * 2;
+  var duration = 5000 + Math.random() * 1500;
+  var startTime = performance.now();
 
   function frame(now) {
-    const elapsed = now - startTime;
-    const t = Math.min(elapsed / duration, 1);
+    var elapsed = now - startTime;
+    var t = Math.min(elapsed / duration, 1);
 
-    // Custom easing: fast start, gradual deceleration with slight bounce
-    // Using quintic ease-out with micro-bounces
-    let ease;
+    var ease;
     if (t < 0.15) {
-      // Quick acceleration
       ease = (t / 0.15) * (t / 0.15) * 0.15;
     } else {
-      // Smooth deceleration with subtle wobble near end
-      const remaining = (t - 0.15) / 0.85;
-      const base = 0.15 + 0.85 * (1 - Math.pow(1 - remaining, 4));
-      // Add tiny oscillation at the end
-      const wobbleAmt = remaining > 0.8 ? Math.sin(remaining * 30) * 0.003 * (1 - remaining) : 0;
+      var remaining = (t - 0.15) / 0.85;
+      var base = 0.15 + 0.85 * (1 - Math.pow(1 - remaining, 4));
+      var wobbleAmt = remaining > 0.8 ? Math.sin(remaining * 30) * 0.003 * (1 - remaining) : 0;
       ease = base + wobbleAmt;
     }
 
     currentAngle = startAngle + totalDist * ease;
     drawWheel(currentAngle);
 
-    // Speed indicator for visual feedback
-    const speed = Math.abs(currentAngle - lastAngle);
-    lastAngle = currentAngle;
-
     if (t < 1) {
       requestAnimationFrame(frame);
     } else {
       currentAngle = startAngle + totalDist;
       drawWheel(currentAngle);
-      // Wait 1 second then go to result page
-      setTimeout(() => goPage(4), 1000);
+      setTimeout(function() { goPage(4); }, 1000);
     }
   }
 
@@ -802,29 +905,29 @@ function startSpin() {
 
 // ====== Page 4: Result + Fireworks ======
 function showResult() {
-  const c = config || { ...DEFAULTS };
-  const i = lastResult;
-  document.getElementById('resultAward').textContent = `${AWARDS_ICONS[i]} ${AWARDS[i]}`;
+  var c = config || cloneObj(DEFAULTS);
+  var i = lastResult;
+  document.getElementById('resultAward').textContent = AWARDS_ICONS[i] + ' ' + AWARDS[i];
   document.getElementById('resultPrize').textContent = c.prizes ? c.prizes[i] : DEFAULTS.prizes[i];
   launchFireworks();
 }
 
 // ====== Fireworks ======
 function launchFireworks() {
-  const c = document.getElementById('fwCanvas');
-  const fctx = c.getContext('2d');
+  var c = document.getElementById('fwCanvas');
+  var fctx = c.getContext('2d');
   c.width = window.innerWidth;
   c.height = window.innerHeight;
 
-  const particles = [];
-  const colors = ['#ff6b6b','#feca57','#48dbfb','#ff9ff3','#54a0ff','#5f27cd','#ffd200','#ff9a44','#51cf66'];
+  var particles = [];
+  var colors = ['#ff6b6b','#feca57','#48dbfb','#ff9ff3','#54a0ff','#5f27cd','#ffd200','#ff9a44','#51cf66'];
 
   function createBurst(x, y, count) {
-    for (let i = 0; i < count; i++) {
-      const angle = (Math.PI * 2 / count) * i + (Math.random() - 0.5) * 0.3;
-      const speed = 2 + Math.random() * 5;
+    for (var i = 0; i < count; i++) {
+      var angle = (Math.PI * 2 / count) * i + (Math.random() - 0.5) * 0.3;
+      var speed = 2 + Math.random() * 5;
       particles.push({
-        x, y,
+        x: x, y: y,
         vx: Math.cos(angle) * speed,
         vy: Math.sin(angle) * speed,
         life: 1,
@@ -832,38 +935,35 @@ function launchFireworks() {
         color: colors[Math.floor(Math.random() * colors.length)],
         size: 2 + Math.random() * 3,
         gravity: 0.03 + Math.random() * 0.02,
-        trail: [],
+        trail: []
       });
     }
   }
 
-  // Stagger bursts
-  const bursts = [
+  var bursts = [
     { t: 0, x: 0.3, y: 0.3 },
     { t: 400, x: 0.7, y: 0.25 },
     { t: 800, x: 0.5, y: 0.4 },
     { t: 1200, x: 0.2, y: 0.5 },
-    { t: 1600, x: 0.8, y: 0.45 },
+    { t: 1600, x: 0.8, y: 0.45 }
   ];
 
-  const startTime = performance.now();
-  let firedBursts = 0;
+  var startTime = performance.now();
+  var firedBursts = 0;
 
   function frame(now) {
-    const elapsed = now - startTime;
+    var elapsed = now - startTime;
     fctx.fillStyle = 'rgba(0,0,0,0.08)';
     fctx.fillRect(0, 0, c.width, c.height);
 
-    // Fire new bursts
     while (firedBursts < bursts.length && elapsed >= bursts[firedBursts].t) {
-      const b = bursts[firedBursts];
+      var b = bursts[firedBursts];
       createBurst(b.x * c.width, b.y * c.height, 40 + Math.floor(Math.random() * 30));
       firedBursts++;
     }
 
-    // Update particles
-    for (let i = particles.length - 1; i >= 0; i--) {
-      const p = particles[i];
+    for (var i = particles.length - 1; i >= 0; i--) {
+      var p = particles[i];
       p.trail.push({ x: p.x, y: p.y });
       if (p.trail.length > 6) p.trail.shift();
 
@@ -879,11 +979,10 @@ function launchFireworks() {
         continue;
       }
 
-      // Draw trail
       if (p.trail.length > 1) {
         fctx.beginPath();
         fctx.moveTo(p.trail[0].x, p.trail[0].y);
-        for (let j = 1; j < p.trail.length; j++) {
+        for (var j = 1; j < p.trail.length; j++) {
           fctx.lineTo(p.trail[j].x, p.trail[j].y);
         }
         fctx.strokeStyle = p.color;
@@ -892,14 +991,12 @@ function launchFireworks() {
         fctx.stroke();
       }
 
-      // Draw particle
       fctx.globalAlpha = p.life;
       fctx.beginPath();
       fctx.arc(p.x, p.y, p.size * p.life, 0, Math.PI * 2);
       fctx.fillStyle = p.color;
       fctx.fill();
 
-      // Glow
       fctx.globalAlpha = p.life * 0.3;
       fctx.beginPath();
       fctx.arc(p.x, p.y, p.size * p.life * 2.5, 0, Math.PI * 2);
@@ -921,41 +1018,49 @@ function launchFireworks() {
 
 // ====== Helpers ======
 function lighten(hex, amt) {
-  const num = parseInt(hex.slice(1), 16);
-  const r = Math.min(255, (num >> 16) + amt);
-  const g = Math.min(255, ((num >> 8) & 0xff) + amt);
-  const b = Math.min(255, (num & 0xff) + amt);
-  return `rgb(${r},${g},${b})`;
+  var num = parseInt(hex.slice(1), 16);
+  var r = Math.min(255, (num >> 16) + amt);
+  var g = Math.min(255, ((num >> 8) & 0xff) + amt);
+  var b = Math.min(255, (num & 0xff) + amt);
+  return 'rgb(' + r + ',' + g + ',' + b + ')';
 }
 function darken(hex, amt) {
-  const num = parseInt(hex.slice(1), 16);
-  const r = Math.max(0, (num >> 16) - amt);
-  const g = Math.max(0, ((num >> 8) & 0xff) - amt);
-  const b = Math.max(0, (num & 0xff) - amt);
-  return `rgb(${r},${g},${b})`;
+  var num = parseInt(hex.slice(1), 16);
+  var r = Math.max(0, (num >> 16) - amt);
+  var g = Math.max(0, ((num >> 8) & 0xff) - amt);
+  var b = Math.max(0, (num & 0xff) - amt);
+  return 'rgb(' + r + ',' + g + ',' + b + ')';
+}
+function cloneObj(obj) {
+  var result = {};
+  for (var k in obj) {
+    if (obj.hasOwnProperty(k)) result[k] = obj[k];
+  }
+  return result;
 }
 
 // Background bubbles
 function createBubbles() {
-  const container = document.getElementById('bubbles');
-  const colors = ['var(--pink)','var(--purple)','var(--blue)','var(--yellow)','var(--green)'];
-  for (let i = 0; i < 15; i++) {
-    const b = document.createElement('span');
-    const size = 20 + Math.random() * 80;
-    b.style.cssText = `
-      width: ${size}px; height: ${size}px;
-      left: ${Math.random()*100}%;
-      background: ${colors[Math.floor(Math.random()*colors.length)]};
-      animation-duration: ${8 + Math.random()*12}s;
-      animation-delay: ${Math.random()*10}s;
-    `;
+  var container = document.getElementById('bubbles');
+  var colors = ['var(--pink)','var(--purple)','var(--blue)','var(--yellow)','var(--green)'];
+  for (var i = 0; i < 15; i++) {
+    var b = document.createElement('span');
+    var size = 20 + Math.random() * 80;
+    b.style.cssText =
+      'width:' + size + 'px;height:' + size + 'px;' +
+      'left:' + (Math.random()*100) + '%;' +
+      'background:' + colors[Math.floor(Math.random()*colors.length)] + ';' +
+      'animation-duration:' + (8 + Math.random()*12) + 's;' +
+      '-webkit-animation-duration:' + (8 + Math.random()*12) + 's;' +
+      'animation-delay:' + (Math.random()*10) + 's;' +
+      '-webkit-animation-delay:' + (Math.random()*10) + 's;';
     container.appendChild(b);
   }
 }
 
 // Resize handler
-window.addEventListener('resize', () => {
-  const c = document.getElementById('fwCanvas');
+window.addEventListener('resize', function() {
+  var c = document.getElementById('fwCanvas');
   if (c) { c.width = window.innerWidth; c.height = window.innerHeight; }
 });
 
