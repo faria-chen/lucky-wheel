@@ -351,7 +351,9 @@ html {
 /* Outer decorative ring */
 .wheel-outer {
   position: relative;
-  display: inline-block;
+  display: block;
+  width: 380px;
+  height: 380px;
 }
 .wheel-outer::before {
   content: '';
@@ -376,15 +378,17 @@ canvas#wheelCanvas {
     0 0 0 5px #2d1b69,
     0 0 0 9px var(--yellow),
     0 0 80px rgba(255,210,0,0.2);
+  position: absolute;
+  top: 0; left: 0;
+  z-index: 1;
 }
 
 /* Pointer */
 .wheel-pointer {
   position: absolute;
   top: -18px;
-  left: 50%;
-  -webkit-transform: translateX(-50%);
-  transform: translateX(-50%);
+  left: 190px;
+  margin-left: -18px;
   z-index: 20;
   -webkit-filter: drop-shadow(0 3px 8px rgba(255,50,80,0.6));
   filter: drop-shadow(0 3px 8px rgba(255,50,80,0.6));
@@ -415,20 +419,23 @@ canvas#wheelCanvas {
   100% { opacity: 1; transform: scale(1.2); }
 }
 
-/* Center spin button on wheel — wrapper uses flexbox centering */
+/* Center spin button — table-cell centering for max iOS compat */
 .wheel-center-wrap {
   position: absolute;
-  top: 0; left: 0; right: 0; bottom: 0;
-  display: -webkit-flex;
-  display: flex;
-  -webkit-align-items: center;
-  align-items: center;
-  -webkit-justify-content: center;
-  justify-content: center;
+  top: 0; left: 0;
+  width: 380px;
+  height: 380px;
+  display: table;
   z-index: 20;
   pointer-events: none;
 }
+.wheel-center-cell {
+  display: table-cell;
+  vertical-align: middle;
+  text-align: center;
+}
 .wheel-center-btn {
+  display: inline-block;
   width: 72px; height: 72px;
   border-radius: 50%;
   border: none;
@@ -446,6 +453,7 @@ canvas#wheelCanvas {
   -webkit-appearance: none;
   appearance: none;
   pointer-events: auto;
+  line-height: 1.2;
 }
 @-webkit-keyframes btnBreathe {
   0%, 100% { -webkit-transform: scale(1); transform: scale(1); box-shadow: 0 4px 20px rgba(255,82,82,0.5); }
@@ -646,7 +654,9 @@ canvas#wheelCanvas {
       <div class="bulb-ring" id="bulbRing"></div>
       <canvas id="wheelCanvas" width="380" height="380"></canvas>
       <div class="wheel-center-wrap">
-        <button class="wheel-center-btn" id="spinBtn" onclick="startSpin()">开始<br>抽奖</button>
+        <div class="wheel-center-cell">
+          <button class="wheel-center-btn" id="spinBtn" onclick="startSpin()">开始<br>抽奖</button>
+        </div>
       </div>
     </div>
   </div>
