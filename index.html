@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🎰 幸运大转盘</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700;900&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Noto Sans SC', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* Animated background particles */
+  .particles {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .particles span {
+    position: absolute;
+    width: 4px; height: 4px;
+    background: rgba(255,255,255,0.3);
+    border-radius: 50%;
+    animation: float linear infinite;
+  }
+  @keyframes float {
+    0% { transform: translateY(100vh) scale(0); opacity: 0; }
+    10% { opacity: 1; }
+    90% { opacity: 1; }
+    100% { transform: translateY(-10vh) scale(1); opacity: 0; }
+  }
+
+  h1 {
+    font-size: clamp(1.8rem, 5vw, 3rem);
+    font-weight: 900;
+    background: linear-gradient(90deg, #f7971e, #ffd200, #f7971e);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: shimmer 3s linear infinite;
+    margin-bottom: 20px;
+    text-shadow: 0 0 40px rgba(255,210,0,0.3);
+    z-index: 1;
+    letter-spacing: 4px;
+  }
+  @keyframes shimmer {
+    to { background-position: 200% center; }
+  }
+
+  .wheel-container {
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Outer glow ring */
+  .wheel-container::before {
+    content: '';
+    position: absolute;
+    inset: -18px;
+    border-radius: 50%;
+    background: conic-gradient(from 0deg, #f7971e, #ffd200, #f7971e, #ffd200, #f7971e);
+    animation: rotateGlow 4s linear infinite;
+    z-index: -1;
+    filter: blur(8px);
+    opacity: 0.6;
+  }
+  @keyframes rotateGlow { to { transform: rotate(360deg); } }
+
+  canvas {
+    display: block;
+    border-radius: 50%;
+    box-shadow:
+      0 0 0 6px #1a1a2e,
+      0 0 0 10px #f7971e,
+      0 0 60px rgba(247,151,30,0.4),
+      inset 0 0 30px rgba(0,0,0,0.3);
+    cursor: pointer;
+    transition: filter 0.3s;
+  }
+  canvas:hover { filter: brightness(1.1); }
+  canvas.spinning { cursor: not-allowed; }
+
+  /* Pointer / Arrow */
+  .pointer {
+    position: absolute;
+    top: -22px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0; height: 0;
+    border-left: 18px solid transparent;
+    border-right: 18px solid transparent;
+    border-top: 40px solid #ff4757;
+    filter: drop-shadow(0 4px 8px rgba(255,71,87,0.6));
+    z-index: 10;
+  }
+  .pointer::after {
+    content: '';
+    position: absolute;
+    top: -42px;
+    left: -10px;
+    width: 20px; height: 20px;
+    background: #ff4757;
+    border-radius: 50%;
+    box-shadow: 0 0 10px rgba(255,71,87,0.8);
+  }
+
+  /* Center button */
+  .spin-btn {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80px; height: 80px;
+    border-radius: 50%;
+    border: none;
+    background: linear-gradient(145deg, #ff6b6b, #ee5a24);
+    color: #fff;
+    font-size: 14px;
+    font-weight: 900;
+    cursor: pointer;
+    box-shadow:
+      0 4px 15px rgba(238,90,36,0.6),
+      inset 0 2px 4px rgba(255,255,255,0.3);
+    transition: all 0.2s;
+    z-index: 11;
+    letter-spacing: 2px;
+  }
+  .spin-btn:hover:not(:disabled) {
+    transform: translate(-50%, -50%) scale(1.1);
+    box-shadow: 0 6px 25px rgba(238,90,36,0.8);
+  }
+  .spin-btn:active:not(:disabled) {
+    transform: translate(-50%, -50%) scale(0.95);
+  }
+  .spin-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  /* Bulb ring */
+  .bulb-ring {
+    position: absolute;
+    inset: -14px;
+    border-radius: 50%;
+    z-index: -1;
+  }
+
+  /* Result modal */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(8px);
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+  }
+  .modal-overlay.show { display: flex; }
+
+  .modal {
+    background: linear-gradient(145deg, #1a1a2e, #16213e);
+    border: 2px solid #f7971e;
+    border-radius: 24px;
+    padding: 40px 50px;
+    text-align: center;
+    animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    max-width: 90vw;
+  }
+  @keyframes popIn {
+    0% { transform: scale(0.5); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+
+  .modal .emoji { font-size: 64px; margin-bottom: 16px; }
+  .modal h2 {
+    font-size: 1.8rem;
+    color: #ffd200;
+    margin-bottom: 8px;
+  }
+  .modal p {
+    color: #a0a0b0;
+    font-size: 1.1rem;
+    margin-bottom: 24px;
+  }
+  .modal .prize-name {
+    font-size: 2rem;
+    font-weight: 900;
+    color: #fff;
+    background: linear-gradient(90deg, #f7971e, #ffd200);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 24px;
+  }
+  .modal button {
+    padding: 12px 36px;
+    border: none;
+    border-radius: 50px;
+    background: linear-gradient(90deg, #f7971e, #ffd200);
+    color: #1a1a2e;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 0.2s;
+  }
+  .modal button:hover { transform: scale(1.05); }
+
+  /* Confetti */
+  .confetti {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 99;
+  }
+
+  /* Stats */
+  .stats {
+    margin-top: 24px;
+    z-index: 1;
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .stat-card {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 16px;
+    padding: 12px 24px;
+    text-align: center;
+    backdrop-filter: blur(10px);
+    min-width: 100px;
+  }
+  .stat-card .num {
+    font-size: 1.5rem;
+    font-weight: 900;
+    color: #ffd200;
+  }
+  .stat-card .label {
+    font-size: 0.75rem;
+    color: #a0a0b0;
+    margin-top: 2px;
+  }
+
+  /* History */
+  .history {
+    margin-top: 16px;
+    z-index: 1;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+    max-width: 500px;
+  }
+  .history-item {
+    background: rgba(255,255,255,0.08);
+    border-radius: 20px;
+    padding: 4px 14px;
+    font-size: 0.8rem;
+    color: #ddd;
+    animation: slideIn 0.3s ease;
+  }
+  @keyframes slideIn {
+    from { transform: scale(0); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+
+  /* Responsive */
+  @media (max-width: 480px) {
+    canvas { width: 300px !important; height: 300px !important; }
+    .spin-btn { width: 64px; height: 64px; font-size: 12px; }
+    .modal { padding: 30px 24px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="particles" id="particles"></div>
+
+<h1>🎰 幸运大转盘</h1>
+
+<div class="wheel-container">
+  <div class="pointer"></div>
+  <div class="bulb-ring" id="bulbRing"></div>
+  <canvas id="wheel" width="400" height="400"></canvas>
+  <button class="spin-btn" id="spinBtn" onclick="spin()">抽奖</button>
+</div>
+
+<div class="stats" id="stats"></div>
+<div class="history" id="history"></div>
+
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <div class="emoji">🎉</div>
+    <h2>恭喜中奖！</h2>
+    <div class="prize-name" id="prizeName"></div>
+    <p id="prizeDesc"></p>
+    <button onclick="closeModal()">太棒了！</button>
+  </div>
+</div>
+
+<canvas class="confetti" id="confetti"></canvas>
+
+<script>
+// ====== 奖品配置（可自定义） ======
+const PRIZES = [
+  { name: '🏆 特等奖',     color: '#ff6b6b', prob: 2,  desc: '你是天选之人！' },
+  { name: '🎁 一等奖',     color: '#feca57', prob: 5,  desc: '运气不错哦～' },
+  { name: '🧧 二等奖',     color: '#48dbfb', prob: 10, desc: '手气挺好的！' },
+  { name: '🎫 三等奖',     color: '#ff9ff3', prob: 15, desc: '中奖啦！' },
+  { name: '🍭 参与奖 A',   color: '#54a0ff', prob: 18, desc: '重在参与嘛～' },
+  { name: '🍪 参与奖 B',   color: '#5f27cd', prob: 18, desc: '下次会更好！' },
+  { name: '🥤 谢谢参与',   color: '#01a3a4', prob: 16, desc: '幸运就在下一次！' },
+  { name: '🌈 再来一次',   color: '#f368e0', prob: 16, desc: '免费再转一次！' },
+];
+
+const canvas = document.getElementById('wheel');
+const ctx = canvas.getContext('2d');
+const spinBtn = document.getElementById('spinBtn');
+
+let currentAngle = 0;
+let isSpinning = false;
+let totalSpins = 0;
+const winHistory = [];
+
+// Weighted random pick
+function pickPrize() {
+  const totalWeight = PRIZES.reduce((s, p) => s + p.prob, 0);
+  let rand = Math.random() * totalWeight;
+  for (let i = 0; i < PRIZES.length; i++) {
+    rand -= PRIZES[i].prob;
+    if (rand <= 0) return i;
+  }
+  return PRIZES.length - 1;
+}
+
+// Draw wheel
+function drawWheel(rotation) {
+  const cx = 200, cy = 200, r = 190;
+  const sliceAngle = (2 * Math.PI) / PRIZES.length;
+
+  ctx.clearRect(0, 0, 400, 400);
+
+  PRIZES.forEach((prize, i) => {
+    const startAngle = rotation + i * sliceAngle;
+    const endAngle = startAngle + sliceAngle;
+
+    // Slice
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.arc(cx, cy, r, startAngle, endAngle);
+    ctx.closePath();
+
+    // Gradient fill
+    const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, r);
+    grad.addColorStop(0, shadeColor(prize.color, 30));
+    grad.addColorStop(1, prize.color);
+    ctx.fillStyle = grad;
+    ctx.fill();
+
+    // Border
+    ctx.strokeStyle = 'rgba(0,0,0,0.2)';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // Text
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.rotate(startAngle + sliceAngle / 2);
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillStyle = '#fff';
+    ctx.font = 'bold 14px "Noto Sans SC", sans-serif';
+    ctx.shadowColor = 'rgba(0,0,0,0.5)';
+    ctx.shadowBlur = 4;
+
+    const text = prize.name;
+    const maxWidth = r * 0.55;
+    // Split long text
+    if (ctx.measureText(text).width > maxWidth) {
+      const mid = Math.ceil(text.length / 2);
+      ctx.fillText(text.slice(0, mid), r * 0.62, -8);
+      ctx.fillText(text.slice(mid), r * 0.62, 10);
+    } else {
+      ctx.fillText(text, r * 0.65, 0);
+    }
+    ctx.restore();
+  });
+
+  // Center circle
+  ctx.beginPath();
+  ctx.arc(cx, cy, 36, 0, 2 * Math.PI);
+  const centerGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, 36);
+  centerGrad.addColorStop(0, '#2d3436');
+  centerGrad.addColorStop(1, '#1a1a2e');
+  ctx.fillStyle = centerGrad;
+  ctx.fill();
+  ctx.strokeStyle = '#f7971e';
+  ctx.lineWidth = 3;
+  ctx.stroke();
+}
+
+function shadeColor(color, percent) {
+  const num = parseInt(color.replace('#', ''), 16);
+  const r = Math.min(255, (num >> 16) + percent);
+  const g = Math.min(255, ((num >> 8) & 0x00FF) + percent);
+  const b = Math.min(255, (num & 0x0000FF) + percent);
+  return `rgb(${r},${g},${b})`;
+}
+
+// Spin logic
+function spin() {
+  if (isSpinning) return;
+  isSpinning = true;
+  spinBtn.disabled = true;
+  canvas.classList.add('spinning');
+
+  const prizeIndex = pickPrize();
+  const sliceAngle = (2 * Math.PI) / PRIZES.length;
+
+  // Target: pointer is at top (3π/2 = 270°), so we rotate so prize center aligns there
+  const targetSliceCenter = prizeIndex * sliceAngle + sliceAngle / 2;
+  const targetAngle = (3 * Math.PI / 2) - targetSliceCenter;
+
+  // Add full rotations (5-8 spins)
+  const fullSpins = (5 + Math.floor(Math.random() * 4)) * 2 * Math.PI;
+  const finalAngle = targetAngle + fullSpins;
+
+  // Normalize
+  const startAngle = currentAngle % (2 * Math.PI);
+  const totalRotation = finalAngle - startAngle;
+
+  const duration = 4000 + Math.random() * 2000;
+  const startTime = performance.now();
+
+  function animate(now) {
+    const elapsed = now - startTime;
+    const progress = Math.min(elapsed / duration, 1);
+
+    // Easing: cubic bezier-like deceleration
+    const ease = 1 - Math.pow(1 - progress, 4);
+
+    currentAngle = startAngle + totalRotation * ease;
+    drawWheel(currentAngle);
+
+    if (progress < 1) {
+      requestAnimationFrame(animate);
+    } else {
+      currentAngle = finalAngle;
+      drawWheel(currentAngle);
+      isSpinning = false;
+      spinBtn.disabled = false;
+      canvas.classList.remove('spinning');
+
+      totalSpins++;
+      winHistory.unshift(PRIZES[prizeIndex].name);
+      if (winHistory.length > 10) winHistory.pop();
+      updateStats();
+      showResult(prizeIndex);
+    }
+  }
+
+  requestAnimationFrame(animate);
+}
+
+function showResult(index) {
+  const prize = PRIZES[index];
+  document.getElementById('prizeName').textContent = prize.name;
+  document.getElementById('prizeDesc').textContent = prize.desc;
+  document.getElementById('modal').classList.add('show');
+  launchConfetti();
+}
+
+function closeModal() {
+  document.getElementById('modal').classList.remove('show');
+}
+
+function updateStats() {
+  document.getElementById('stats').innerHTML = `
+    <div class="stat-card"><div class="num">${totalSpins}</div><div class="label">总抽奖次数</div></div>
+    <div class="stat-card"><div class="num">${winHistory.length}</div><div class="label">中奖记录</div></div>
+  `;
+  document.getElementById('history').innerHTML = winHistory
+    .map(h => `<span class="history-item">${h}</span>`).join('');
+}
+
+// ====== Confetti ======
+function launchConfetti() {
+  const c = document.getElementById('confetti');
+  const cctx = c.getContext('2d');
+  c.width = window.innerWidth;
+  c.height = window.innerHeight;
+
+  const pieces = [];
+  const colors = ['#ff6b6b','#feca57','#48dbfb','#ff9ff3','#54a0ff','#5f27cd','#01a3a4','#f368e0','#ffd200'];
+
+  for (let i = 0; i < 120; i++) {
+    pieces.push({
+      x: c.width / 2 + (Math.random() - 0.5) * 200,
+      y: c.height / 2,
+      vx: (Math.random() - 0.5) * 20,
+      vy: -Math.random() * 20 - 5,
+      w: Math.random() * 10 + 5,
+      h: Math.random() * 6 + 3,
+      color: colors[Math.floor(Math.random() * colors.length)],
+      rotation: Math.random() * 360,
+      rotSpeed: (Math.random() - 0.5) * 15,
+      gravity: 0.3 + Math.random() * 0.2,
+      life: 1,
+    });
+  }
+
+  let frame = 0;
+  function animateConfetti() {
+    cctx.clearRect(0, 0, c.width, c.height);
+    let alive = false;
+
+    pieces.forEach(p => {
+      if (p.life <= 0) return;
+      alive = true;
+      p.x += p.vx;
+      p.vy += p.gravity;
+      p.y += p.vy;
+      p.rotation += p.rotSpeed;
+      p.life -= 0.008;
+
+      cctx.save();
+      cctx.translate(p.x, p.y);
+      cctx.rotate(p.rotation * Math.PI / 180);
+      cctx.globalAlpha = Math.max(0, p.life);
+      cctx.fillStyle = p.color;
+      cctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+      cctx.restore();
+    });
+
+    frame++;
+    if (alive && frame < 200) {
+      requestAnimationFrame(animateConfetti);
+    } else {
+      cctx.clearRect(0, 0, c.width, c.height);
+    }
+  }
+  animateConfetti();
+}
+
+// ====== Bulbs ======
+function createBulbs() {
+  const ring = document.getElementById('bulbRing');
+  const count = 24;
+  for (let i = 0; i < count; i++) {
+    const angle = (i / count) * 360;
+    const bulb = document.createElement('div');
+    const rad = angle * Math.PI / 180;
+    const size = 10;
+    const radius = 207;
+    bulb.style.cssText = `
+      position: absolute;
+      width: ${size}px; height: ${size}px;
+      border-radius: 50%;
+      background: ${i % 2 === 0 ? '#ffd200' : '#fff'};
+      box-shadow: 0 0 6px ${i % 2 === 0 ? '#ffd200' : '#fff'};
+      top: ${207 + Math.sin(rad) * radius - size/2}px;
+      left: ${207 + Math.cos(rad) * radius - size/2}px;
+      animation: bulbBlink 1s ease-in-out ${i % 2 === 0 ? '0s' : '0.5s'} infinite alternate;
+    `;
+    ring.appendChild(bulb);
+  }
+
+  const style = document.createElement('style');
+  style.textContent = `
+    @keyframes bulbBlink {
+      0% { opacity: 0.3; transform: scale(0.8); }
+      100% { opacity: 1; transform: scale(1.2); }
+    }
+  `;
+  document.head.appendChild(style);
+}
+
+// ====== Particles ======
+function createParticles() {
+  const container = document.getElementById('particles');
+  for (let i = 0; i < 30; i++) {
+    const p = document.createElement('span');
+    p.style.left = Math.random() * 100 + '%';
+    p.style.animationDuration = (3 + Math.random() * 7) + 's';
+    p.style.animationDelay = Math.random() * 5 + 's';
+    p.style.width = p.style.height = (2 + Math.random() * 4) + 'px';
+    container.appendChild(p);
+  }
+}
+
+// ====== Init ======
+drawWheel(0);
+createBulbs();
+createParticles();
+updateStats();
+
+// Resize confetti canvas
+window.addEventListener('resize', () => {
+  const c = document.getElementById('confetti');
+  c.width = window.innerWidth;
+  c.height = window.innerHeight;
+});
+</script>
+
+</body>
+</html>
